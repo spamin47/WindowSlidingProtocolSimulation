@@ -1,0 +1,2 @@
+public class Pipe {
+}
