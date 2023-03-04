@@ -105,7 +105,7 @@ public class Station {
                 count++;
             }
 
-            //Move the receiver window
+            //Move the receiver window to an empty slot
             receiverBuffer_endIndx+=5; //frame size 5 data
             receiverBuffer_startIndx+=5;
             if(receiverBuffer_endIndx>receiverBuffer.length){
@@ -113,7 +113,7 @@ public class Station {
                 receiverBuffer_endIndx = 4;
             }
 
-            //ACK handling
+            //ACK handling - once received frame, set ACK for that frame
             ack_sequenceNum = frame[0];
             readyToSendACK = true;
 
