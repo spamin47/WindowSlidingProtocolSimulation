@@ -46,10 +46,28 @@ public class WindowSimulator {
         int test2 = 0xffed10cd >> 8;
         byte test3 = (byte)test2;
         System.out.println(test3);
-        Station s1 = new Station(1,1,0);
+        Station s1 = new Station(2,2,0);
+        Station r1 = new Station(2,2,0);
         s1.send(6783);
+        s1.send(4455);
+
+        r1.receiveFrame(s1.nextTransmitFrame());
+        s1.receiveFrame(r1.nextTransmitFrame());
 
 
+
+
+    }
+
+    public static void printFrame(byte[] bFrame){
+        for(int i =0;i<bFrame.length;i++){
+            System.out.print(bFrame[i] + " ");
+        }
+        System.out.println("");
+        for(int i =0;i<bFrame.length;i++){
+            System.out.print(Integer.toBinaryString(bFrame[i]) + " ");
+        }
+        System.out.println("");
     }
 
 }
