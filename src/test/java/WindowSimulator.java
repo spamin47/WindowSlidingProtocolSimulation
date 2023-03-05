@@ -34,28 +34,38 @@ public class WindowSimulator {
 //            System.out.println("Invalid inputs");
 //            return;
 //        }
-        byte frame= 4;
-        byte ack= -2; //254 acknowledge frame
-        byte fullbit = -1; //255
-        boolean ackowledged_frame = (ack &frame) == ack;
 
-        System.out.println(ack);
-        System.out.println(ackowledged_frame);
-        byte test = (byte)0xffed10cd;
-        System.out.println(test);
-        int test2 = 0xffed10cd >> 8;
-        byte test3 = (byte)test2;
-        System.out.println(test3);
+
+//        byte frame= 4;
+//        byte ack= -2; //254 acknowledge frame
+//        byte fullbit = -1; //255
+//        boolean ackowledged_frame = (ack &frame) == ack;
+//
+//        System.out.println(ack);
+//        System.out.println(ackowledged_frame);
+//        byte test = (byte)0xffed10cd;
+//        System.out.println(test);
+//        int test2 = 0xffed10cd >> 8;
+//        byte test3 = (byte)test2;
+//        System.out.println(test3);
+
+
         Station s1 = new Station(2,2,0);
         Station r1 = new Station(2,2,0);
+        System.out.println("s1");
         s1.send(6783);
+        System.out.println("s1");
         s1.send(4455);
 
-        r1.receiveFrame(s1.nextTransmitFrame());
-        s1.receiveFrame(r1.nextTransmitFrame());
-
-
-
+        if(r1.isReady()){
+            r1.receiveFrame(s1.nextTransmitFrame());
+        }
+        if(s1.isReady()){
+            s1.receiveFrame(r1.nextTransmitFrame());
+        }
+        if(r1.isReady()){
+            r1.receiveFrame(s1.nextTransmitFrame());
+        }
 
     }
 
