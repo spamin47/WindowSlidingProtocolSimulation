@@ -1,4 +1,4 @@
-package hw2;
+
 
 public class Pipe {
     private static final int FRAME_SIZE = 5;
@@ -11,6 +11,10 @@ public class Pipe {
         channel = new byte[FRAME_SIZE * channelLength];
     }
 
+    /*
+     * shifts right by one frame(5 bytes) and adds new frame
+     * returns: last frame removed by the shift
+     */
     byte[] addFrame(byte[] frame)
     {
         byte[] ret = new byte[5];
@@ -42,7 +46,7 @@ public class Pipe {
 
     float utilization()
     {
-        byte a = 0;
+        byte nonframe = -1;
         int count = 0;
 
         // iterates through frames

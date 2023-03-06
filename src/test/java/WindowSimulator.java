@@ -52,6 +52,35 @@ public class WindowSimulator {
 
         Station s1 = new Station(2,2,0);
         Station r1 = new Station(2,2,0);
+        Pipe senderPipe = new Pipe(2);
+        Pipe receiverPipe = new Pipe(2);
+        int steps = 0;
+        int counter = 0;
+        boolean notDone = true;
+        int sumUtilizations = 0;
+
+        while(notDone)
+        {
+            System.out.println("Step " + steps);
+            System.out.println("senderPipe");
+            senderPipe.printContents();
+            System.out.println("receiverPipe");
+            receiverPipe.printContents();
+            // 4
+            sumUtilizations+= (senderPipe.utilization() + receiverPipe.utilization());
+            // num frames ==> cmdline argument 
+            if(counter < num_frames && s1.isReady())
+            {
+                s1.send(counter);
+                counter++;
+            }
+
+            r1.receiveFrame(senderPipe.addFrame(s1.nextTransmitFrame()));
+            s1.receiveFrame(receiverPipe.addFrame(r1.nextTransmitFrame()));
+
+
+
+        }
         System.out.println("s1");
         s1.send(6783);
         System.out.println("s1");
