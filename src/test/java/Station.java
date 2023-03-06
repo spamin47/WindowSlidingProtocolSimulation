@@ -12,13 +12,10 @@ public class Station {
     private int receiverBuffer_endIndx;//empty slot end indx
     private int receiverHead = 0;//start indx of next frame
 
-
     private float propDrop; //chances of frame failing to be sent
-    private byte ack_sequenceNum= 0;
-    private boolean readyToSendACK = false;
+    private Queue<Byte> ACK;
     private int maxSequence;
     private byte sequenceNum = 1; //start at 1 because 0 indicates empty frame slot
-
 
     public Station(int sws,int rws, float propDrop){
         senderBuffer = new byte[sws*5];
@@ -30,6 +27,7 @@ public class Station {
         this.propDrop = propDrop;
         maxSequence = sws*2;
         senderBufferTimer = new byte[sws];
+        ACK = new LinkedList<>();
     }
 
     //returns whether the Station can receive a new frame to queue.
@@ -50,6 +48,7 @@ public class Station {
         System.out.println("Receiverbuffer full. Cannot receive any data at the moment.\n");
         return false;
     }
+    //increment the time of every frame waiting to be acknowledged by 1
     public void updateTimer(){
         for(int i =0;i<senderBufferTimer.length;i++){
             if(senderBufferTimer[i]>0){
@@ -95,11 +94,10 @@ public class Station {
         boolean cases[] = new boolean[3];
 
         //send ACK
-        if(readyToSendACK){
+        if(ACK.size()>0){ //check for any ACK frames to send
             System.out.println("Transmitting ACK...\n");
-            readyToSendACK = false;
             cases[0] = true;
-            sendFrame= new byte[]{ack_sequenceNum,-1,-1,-1,-2};
+            sendFrame= new byte[]{ACK.peek(),-1,-1,-1,-2};
         }else{ //Handle case 1 and 2
             int startIndx = -1;
             if(!cases[0]){
@@ -135,19 +133,21 @@ public class Station {
             printSendBufferTimer();
         }
 
-        //propDrop situation: send a nonframe (forces timer to go off and resend frame)
+        //propDrop situation: send a non-frame (forces timer to go off and resend frame)
         if(Math.random()<propDrop){
             if(cases[0]){
                 System.out.println("ACK frame transmission failed. PropDrop case encountered. Sending nonframe..\n");
-                readyToSendACK = true;
             }else if(cases[1]){
                 System.out.println("Resending old frame failed. PropDrop case encountered. Sending nonframe..\n");
-
             }else if(cases[2]){
                 System.out.println("Transmission failed. PropDrop case encountered. Sending nonframe..\n");
             }
 
             return new byte[]{-1,-1,-1,-1,-1}; //nonFrame
+        }else{
+            if(cases[0]){
+                ACK.remove();//remove ACK frame from queue
+            }
         }
 
         return sendFrame;
@@ -202,8 +202,8 @@ public class Station {
             }
 
             //ACK handling - once received frame, set ACK for that frame
-            ack_sequenceNum = frame[0];
-            readyToSendACK = true;
+            ACK.add(frame[0]);
+
             printReceiverBuffer();
             printSendBufferTimer();
         }
