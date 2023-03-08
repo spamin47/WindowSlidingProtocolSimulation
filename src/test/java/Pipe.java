@@ -57,7 +57,7 @@ public class Pipe {
             {
                 byte b = channel[(FRAME_SIZE * i) + j];
                 // if a byte in frame is non zero, count it towards utilization
-                if (Byte.compare(a, b) != 0)
+                if (Byte.compare(nonframe, b) != 0)
                 {
                     count++;
                     break;

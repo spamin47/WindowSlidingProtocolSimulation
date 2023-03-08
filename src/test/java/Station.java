@@ -13,7 +13,7 @@ public class Station {
     private int receiverHead = 0;//start indx of next frame
 
     private float propDrop; //chances of frame failing to be sent
-    private Queue<Byte> ACK;
+    private Queue<Byte> ACK; //for storing frames to be acknowledged
     private int maxSequence;
     private byte sequenceNum = 1; //start at 1 because 0 indicates empty frame slot
 
@@ -217,7 +217,6 @@ public class Station {
             }else{
                 System.out.print(senderBuffer[i] + "|");
             }
-
         }
         System.out.println("");
         for(int i =0;i<senderBuffer.length;i++){
@@ -226,7 +225,6 @@ public class Station {
             }else{
                 System.out.print(Integer.toBinaryString(senderBuffer[i]) + "|");
             }
-
         }
         System.out.println("\n");
     }
