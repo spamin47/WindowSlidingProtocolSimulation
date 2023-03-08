@@ -29,7 +29,7 @@ public class WindowSimulator {
 //                System.out.println("Invalid inputs. Invalid prob_not_recv/prob_not_ackd");
 //                return;
 //            }
-//        }catch(NumberFormatException e){
+//        } catch(NumberFormatException e){
 //            e.printStackTrace();
 //            System.out.println("Invalid inputs");
 //            return;
@@ -49,7 +49,7 @@ public class WindowSimulator {
 //        byte test3 = (byte)test2;
 //        System.out.println(test3);
 
-
+        int num_frames = 4;
         Station s1 = new Station(2,2,0);
         Station r1 = new Station(2,2,0);
         Pipe senderPipe = new Pipe(2);
@@ -83,7 +83,7 @@ public class WindowSimulator {
             receiverFrame = receiverPipe.addFrame(r1.nextTransmitFrame());
             s1.receiveFrame(receiverFrame);
 
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < 5; i++)
             {
                 if (Byte.toUnsignedInt(receiverFrame[i]) == lastAck[i])
                 {
@@ -91,9 +91,13 @@ public class WindowSimulator {
                 }
             }
 
-            if (match == 5)
+            if (match >= 5)
             {
                 notDone = false;
+                System.out.println("DONE");
+            }
+            else {
+                steps++;
             }
         }
 
