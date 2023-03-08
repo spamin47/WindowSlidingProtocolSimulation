@@ -37,8 +37,8 @@ public class WindowSimulator {
 
 
 //        byte frame= 4;
-//        byte ack= -2; //254 acknowledge frame
-//        byte fullbit = -1; //255
+       byte ack= -2; //254 acknowledge frame
+       byte fullbit = -1; //255
 //        boolean ackowledged_frame = (ack &frame) == ack;
 //
 //        System.out.println(ack);
@@ -49,20 +49,17 @@ public class WindowSimulator {
 //        byte test3 = (byte)test2;
 //        System.out.println(test3);
 
-        Station s1 = new Station(sws,rws,0);
-        Station r1 = new Station(sws,rws,0);
+        Station s1 = new Station(sws,rws, prob_not_recv);// sender
+        Station r1 = new Station(sws,rws,prob_not_ackd); // receiver
         Pipe senderPipe = new Pipe(channel_length);
         Pipe receiverPipe = new Pipe(channel_length);
         int steps = 0;
         int counter = 0;
         boolean notDone = true;
-        int sumUtilizations = 0;
+        float sumUtilizations = 0;
         float averageUtilization;
-        // frame sent by receiver held for comparison
+        // frame sent by receiver held -- used to check if num_frame - 1th ack frame was sent
         byte[] receiverFrame;
-        // byte values for the last ack frame
-        int[] lastAck = {num_frames, 255, 255, 255, 254};
-        int match = 0;
 
         while(notDone)
         {
@@ -71,8 +68,9 @@ public class WindowSimulator {
             senderPipe.printContents();
             System.out.println("receiverPipe");
             receiverPipe.printContents();
-            // 4.
-            sumUtilizations+= (senderPipe.utilization() + receiverPipe.utilization());
+
+            sumUtilizations += (float) (senderPipe.utilization() + receiverPipe.utilization())/2;
+            System.out.println("SUM Util: " + sumUtilizations);
             // num frames ==> cmdline argument 
             if(counter < num_frames && r1.isReady())
             {
@@ -84,26 +82,24 @@ public class WindowSimulator {
             receiverFrame = receiverPipe.addFrame(r1.nextTransmitFrame());
             s1.receiveFrame(receiverFrame);
 
-            for(int i = 0; i < 5; i++)
-            {
-                if (Byte.toUnsignedInt(receiverFrame[i]) == lastAck[i])
-                {
-                    match++;
-                }
-            }
-
-            if (match >= 5)
+            // compares value of each byte to check if its the appropriate ack frame
+            if ( Byte.toUnsignedInt(receiverFrame[0]) == num_frames 
+                && ((receiverFrame[1] & receiverFrame[2] & receiverFrame[3]) == fullbit) 
+                && ((receiverFrame[4] & ack) == ack))
             {
                 notDone = false;
-                System.out.println("DONE");
+                System.out.println("\n-\n-\nDONE");
             }
-            else {
-                steps++;
+            else
+            {
+                steps++;    
             }
         }
 
-        averageUtilization = (float) sumUtilizations/steps;
-        System.out.println("final steps: " + steps);
+        // computes average utilization -- since steps starts from 0, total # steps is actually steps + 1
+        averageUtilization = (float) sumUtilizations/(steps + 1);
+        System.out.println("Final Steps: " + steps);
+        System.out.println("Sum Utilizations: " + sumUtilizations);
         System.out.println("Average Pipe Utilization: " + averageUtilization);
 
 

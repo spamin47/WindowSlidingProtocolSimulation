@@ -2,7 +2,7 @@
 
 public class Pipe {
     private static final int FRAME_SIZE = 5;
-    private int channelLength;
+    private int channelLength; // the max number of frames within the channel
     private byte[] channel;
 
     Pipe(int channelLength)
@@ -65,10 +65,10 @@ public class Pipe {
             }
         }
         
-        System.out.println(count);
         return (float) count/channelLength;
     }
 
+    // prints the byte values in the channel in hex format
     void printContents()
     {
         StringBuilder sb = new StringBuilder();
