@@ -58,6 +58,10 @@ public class WindowSimulator {
         int counter = 0;
         boolean notDone = true;
         int sumUtilizations = 0;
+        float averageUtilization;
+        byte[] receiverFrame;
+        int[] lastAck = {num_frames, 255, 255, 255, 254};
+        int match = 0;
 
         while(notDone)
         {
@@ -66,21 +70,38 @@ public class WindowSimulator {
             senderPipe.printContents();
             System.out.println("receiverPipe");
             receiverPipe.printContents();
-            // 4
+            // 4.
             sumUtilizations+= (senderPipe.utilization() + receiverPipe.utilization());
             // num frames ==> cmdline argument 
-            if(counter < num_frames && s1.isReady())
+            if(counter < num_frames && r1.isReady())
             {
                 s1.send(counter);
                 counter++;
             }
 
             r1.receiveFrame(senderPipe.addFrame(s1.nextTransmitFrame()));
-            s1.receiveFrame(receiverPipe.addFrame(r1.nextTransmitFrame()));
+            receiverFrame = receiverPipe.addFrame(r1.nextTransmitFrame());
+            s1.receiveFrame(receiverFrame);
 
+            for(int i = 0; i < 4; i++)
+            {
+                if (Byte.toUnsignedInt(receiverFrame[i]) == lastAck[i])
+                {
+                    match++;
+                }
+            }
 
-
+            if (match == 5)
+            {
+                notDone = false;
+            }
         }
+
+        averageUtilization = (float) sumUtilizations/steps;
+        System.out.println("final steps: " + steps);
+        System.out.println("Average Pipe Utilization: " + averageUtilization);
+
+
         System.out.println("s1");
         s1.send(6783);
         System.out.println("s1");
