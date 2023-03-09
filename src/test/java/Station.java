@@ -36,8 +36,8 @@ public class Station {
         for(int i = 0;i<receiverBuffer.length;i+=5){
             if(receiverBuffer[receiverBuffer_startIndx] ==0){
                 receiverBuffer_endIndx = receiverBuffer_startIndx+4;
-                System.out.println(this + " is ready to receive data at indx: "+ receiverBuffer_startIndx +"-" + receiverBuffer_endIndx);
-                printReceiverBuffer();
+//                System.out.println(this + " is ready to receive data at indx: "+ receiverBuffer_startIndx +"-" + receiverBuffer_endIndx);
+//                printReceiverBuffer();
                 return true;
             }
             receiverBuffer_startIndx+=5;
@@ -45,7 +45,7 @@ public class Station {
                 receiverBuffer_startIndx = 0;
             }
         }
-        System.out.println("Receiverbuffer full. Cannot receive any data at the moment.\n");
+//        System.out.println("Receiverbuffer full. Cannot receive any data at the moment.\n");
         return false;
     }
     //increment the time of every frame waiting to be acknowledged by 1
@@ -54,14 +54,14 @@ public class Station {
             if(senderBufferTimer[i]>0){
                 senderBufferTimer[i]++;
             }
-            System.out.println(senderBufferTimer[i]+" ");
+//            System.out.println(senderBufferTimer[i]+" ");
         }
-        System.out.println("\n");
+//        System.out.println("\n");
     }
 
     //packages data as a 5 byte frame, writes it to the appropriate senderBuffer bytes.
     public boolean send(int data){ // 0xff ff ff ff
-        System.out.println("Sending " + data + " as " + Integer.toBinaryString(data) + " to senderbuffer of " +this);
+//        System.out.println("Sending " + data + " as " + Integer.toBinaryString(data) + " to senderbuffer of " +this);
         int count = 0;
         //store each byte into the senderBuffer byte array
         for(int i = senderBuffer_endIndx;i>=senderBuffer_startIndx || count<5;i--){
@@ -75,7 +75,7 @@ public class Station {
             count++;
 
         }
-        printSenderBuffer();
+//        printSenderBuffer();
         //Move the sender window
         senderBuffer_endIndx+=5; //frame size 5 data
         senderBuffer_startIndx+=5;
@@ -87,7 +87,7 @@ public class Station {
     }
     //chooses the next frame that will be sent from the Station
     public byte[] nextTransmitFrame(){
-        System.out.println(this + " Next Transmit Frame.");
+//        System.out.println(this + " Next Transmit Frame.");
         byte[] sendFrame = new byte[5];
 
         //0. ACK frame. 1. Resend an old frame whose timer went off. 2. Data frame in SenderWindow. 3. non-frame
@@ -95,7 +95,7 @@ public class Station {
 
         //send ACK
         if(ACK.size()>0){ //check for any ACK frames to send
-            System.out.println("Transmitting ACK...\n");
+//            System.out.println("Transmitting ACK...\n");
             cases[0] = true;
             sendFrame= new byte[]{ACK.peek(),-1,-1,-1,-2};
         }else{ //Handle case 1 and 2
@@ -110,14 +110,14 @@ public class Station {
                     }
                 }
                 if(startIndx>-1){
-                    System.out.println("Retransmitting old data frame...");
+//                    System.out.println("Retransmitting old data frame...");
                     senderBufferTimer[startIndx] =1; //reset timer
                     startIndx = startIndx * 5;
                 }
 
             }
             if(!cases[1]){ //send data frame
-                System.out.println("Transmitting data frame...");
+//                System.out.println("Transmitting data frame...");
                 startIndx = senderHead;
                 senderBufferTimer[startIndx/5] = 1;//start timer
                 cases[2] = true;
@@ -125,7 +125,7 @@ public class Station {
             int index =0;
 
             for(int i = startIndx;i<startIndx+5;i++){
-                System.out.print(Integer.toBinaryString(senderBuffer[i])+  " ");
+//                System.out.print(Integer.toBinaryString(senderBuffer[i])+  " ");
                 sendFrame[index] = senderBuffer[i];
                 index++;
             }
@@ -135,13 +135,13 @@ public class Station {
 
         //propDrop situation: send a non-frame (forces timer to go off and resend frame)
         if(Math.random()<propDrop){
-            if(cases[0]){
-                System.out.println("ACK frame transmission failed. PropDrop case encountered. Sending nonframe..\n");
-            }else if(cases[1]){
-                System.out.println("Resending old frame failed. PropDrop case encountered. Sending nonframe..\n");
-            }else if(cases[2]){
-                System.out.println("Transmission failed. PropDrop case encountered. Sending nonframe..\n");
-            }
+//            if(cases[0]){
+//                System.out.println("ACK frame transmission failed. PropDrop case encountered. Sending nonframe..\n");
+//            }else if(cases[1]){
+//                System.out.println("Resending old frame failed. PropDrop case encountered. Sending nonframe..\n");
+//            }else if(cases[2]){
+//                System.out.println("Transmission failed. PropDrop case encountered. Sending nonframe..\n");
+//            }
 
             return new byte[]{-1,-1,-1,-1,-1}; //nonFrame
         }else{
@@ -154,38 +154,38 @@ public class Station {
     }
     //
     public void receiveFrame(byte[] frame){
-        System.out.println(this + " Received frame:");
+//        System.out.println(this + " Received frame:");
         WindowSimulator.printFrame(frame);
 
         byte ack = -2; //254 = 0b1111 1110 = -2
         byte fullbit = -1;//0b11111111
 
         if((frame[4]&ack)==ack && (frame[1] & frame[2] & frame[3]) == fullbit){ //acknowledgment frame received
-            System.out.println("ACK frame received.");
+//            System.out.println("ACK frame received.");
             for(int j = 0;j<senderBuffer.length;j+=5){
                 if(senderBuffer[j] == frame[0] && senderBuffer[j]!= 0){ //ACK the right frame
-                    System.out.println("Sequence number matches. Removing frame from senderBuffer...");
+//                    System.out.println("Sequence number matches. Removing frame from senderBuffer...");
                     for(int i = j;i<j+5;i++){
                         senderBuffer[i] =0;
                     }
-                    printSenderBuffer();
+//                    printSenderBuffer();
                     //adjust the sender head index
                     senderHead+=5;
                     if(senderHead>=senderBuffer.length){ //Index out of bound. Move index to 0
                         senderHead = 0;
                     }
                     senderBufferTimer[j/5] = 0; //remove timer for frame ACKed
-                    printSendBufferTimer();
+//                    printSendBufferTimer();
                     return;
                 }
             }
-            System.out.println("Sequence number does not match.");
+//            System.out.println("Sequence number does not match.");
 
 
         }else if((frame[0]&frame[1] & frame[2] & frame[3]&frame[4]) == fullbit){ //nonframe received
-            System.out.println("Nonframe detected. Do nothing.");
+//            System.out.println("Nonframe detected. Do nothing.");
         }else{ //data frame received
-            System.out.println("Storing data frame in receiverBuffer...");
+//            System.out.println("Storing data frame in receiverBuffer...");
             int count = 0;
             //store each byte into the byte array
             for(int i = receiverBuffer_startIndx;i<=receiverBuffer_endIndx || count<5;i++){
@@ -204,8 +204,8 @@ public class Station {
             //ACK handling - once received frame, set ACK for that frame
             ACK.add(frame[0]);
 
-            printReceiverBuffer();
-            printSendBufferTimer();
+//            printReceiverBuffer();
+//            printSendBufferTimer();
         }
     }
 
