@@ -155,7 +155,7 @@ public class Station {
     //
     public void receiveFrame(byte[] frame){
 //        System.out.println(this + " Received frame:");
-        WindowSimulator.printFrame(frame);
+        // WindowSimulator.printFrame(frame);
 
         byte ack = -2; //254 = 0b1111 1110 = -2
         byte fullbit = -1;//0b11111111

@@ -36,18 +36,9 @@ public class WindowSimulator {
        }
 
 
-//        byte frame= 4;
-       byte ack= -2; //254 acknowledge frame
-       byte fullbit = -1; //255
-//        boolean ackowledged_frame = (ack &frame) == ack;
-//
-//        System.out.println(ack);
-//        System.out.println(ackowledged_frame);
-//        byte test = (byte)0xffed10cd;
-//        System.out.println(test);
-//        int test2 = 0xffed10cd >> 8;
-//        byte test3 = (byte)test2;
-//        System.out.println(test3);
+
+        byte ack= -2; // 254 acknowledge frame
+        byte fullbit = -1; // 255
 
         Station s1 = new Station(sws,rws, prob_not_recv);// sender
         Station r1 = new Station(sws,rws,prob_not_ackd); // receiver
@@ -63,14 +54,13 @@ public class WindowSimulator {
 
         while(notDone)
         {
-            System.out.println("Step " + steps);
+            System.out.println("\nStep " + steps);
             System.out.println("senderPipe");
             senderPipe.printContents();
             System.out.println("receiverPipe");
             receiverPipe.printContents();
 
             sumUtilizations += (float) (senderPipe.utilization() + receiverPipe.utilization())/2;
-            System.out.println("SUM Util: " + sumUtilizations);
             // num frames ==> cmdline argument 
             if(counter < num_frames && r1.isReady())
             {
@@ -82,13 +72,13 @@ public class WindowSimulator {
             receiverFrame = receiverPipe.addFrame(r1.nextTransmitFrame());
             s1.receiveFrame(receiverFrame);
 
-            // compares value of each byte to check if its the appropriate ack frame
+            // compares value of each byte to check if its the appropriate ack frame(the final ack frame)
             if ( Byte.toUnsignedInt(receiverFrame[0]) == num_frames 
                 && ((receiverFrame[1] & receiverFrame[2] & receiverFrame[3]) == fullbit) 
                 && ((receiverFrame[4] & ack) == ack))
             {
                 notDone = false;
-                System.out.println("\n-\n-\nDONE");
+                System.out.println("DONE");
             }
             else
             {
@@ -96,39 +86,9 @@ public class WindowSimulator {
             }
         }
 
-        // computes average utilization -- since steps starts from 0, total # steps is actually steps + 1
-        averageUtilization = (float) sumUtilizations/(steps + 1);
-        System.out.println("Final Steps: " + steps);
-        System.out.println("Sum Utilizations: " + sumUtilizations);
+        // computes average utilization -- since steps starts from 0, total # steps is actually steps + 1 ==> offset by 1 for average commputation
+        averageUtilization = sumUtilizations/(steps + 1);
+        System.out.println("Final Value of Steps: " + (steps));
         System.out.println("Average Pipe Utilization: " + averageUtilization);
-
-
-        System.out.println("s1");
-        s1.send(6783);
-        System.out.println("s1");
-        s1.send(4455);
-
-        if(r1.isReady()){
-            r1.receiveFrame(s1.nextTransmitFrame());
-        }
-        if(s1.isReady()){
-            s1.receiveFrame(r1.nextTransmitFrame());
-        }
-        if(r1.isReady()){
-            r1.receiveFrame(s1.nextTransmitFrame());
-        }
-
     }
-
-    public static void printFrame(byte[] bFrame){
-        for(int i =0;i<bFrame.length;i++){
-            System.out.print(bFrame[i] + " ");
-        }
-        System.out.println("");
-        for(int i =0;i<bFrame.length;i++){
-            System.out.print(Integer.toBinaryString(bFrame[i]) + " ");
-        }
-        System.out.println("");
-    }
-
 }
